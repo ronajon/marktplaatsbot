@@ -49,6 +49,12 @@ parser.add_argument(
     help="Enable file logging"
 )
 
+parser.add_argument(
+    "--dry-run",
+    action="store_true",
+    help="Run script without sending Telegram message and store results and log to screen."
+)
+
 args = parser.parse_args()
 
 KEYWORDS = [k.strip() for k in args.keywords.split(",") if k.strip()] # to search for multiple keywords, separate them with comma
@@ -56,6 +62,7 @@ CATEGORIES = [c.strip() for c in args.categories.split(",") if c.strip()] #
 SEEN_FILE = "marktplaatsbot_seen.json"
 LOG_FILE = "marktplaatsbot.log"
 MESSAGE_THREAD_ID = args.message_thread_id
+DRY_RUN = False
 
 # =========================
 # LOGGING
@@ -66,6 +73,10 @@ elif args.logtofile:
     LOG_MODE = "file"
 else:
     LOG_MODE = "file"
+
+if args.dry_run:
+    DRY_RUN = True
+    LOG_MODE = "screen"
 
 handlers = []
 
@@ -140,13 +151,17 @@ def main():
         if item.id in seen:
             continue # skip the rest of the for loop, next item
 
-        seen.add(item.id)
+        if DRY_RUN:
+            logger.info(str(item.date) + ": " + str(item.title))
 
-        message = format_card(item)
-        #logger.info(message)
-        send_telegram_card(item, message, MESSAGE_THREAD_ID)
+        else:
+            seen.add(item.id)
 
-    save_seen(seen)
+            message = format_card(item)
+            send_telegram_card(item, message, MESSAGE_THREAD_ID)
+
+    if not DRY_RUN:
+        save_seen(seen)
 
     logger.info("DONE")
 

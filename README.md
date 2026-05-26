@@ -80,13 +80,14 @@ Each topic has a `message_thread_id`.
 
 The bot uses `argparse`.
 
-| Argument              | Type   | Description                  | Default      |
-| --------------------- | ------ | ---------------------------- | ------------ |
-| `--keywords`          | string | Comma-separated keywords     | `bmw`        |
-| `--categories`        | string | Comma-separated categories   | `auto-kopen` |
-| `--message-thread-id` | int    | Telegram topic ID (optional) | `None`       |
-| `--logtoscreen`       | flag   | Enable console logging       | `False`      |
-| `--logtofile`         | flag   | Enable file logging          | `True`       |
+| Argument              | Type   | Description                             | Default      |
+| --------------------- | ------ | ----------------------------            | ------------ |
+| `--keywords`          | string | Comma-separated keywords                | `bmw`        |
+| `--categories`        | string | Comma-separated categories              | `auto-kopen` |
+| `--message-thread-id` | int    | Telegram topic ID (optional)            | `None`       |
+| `--logtoscreen`       | flag   | Enable console logging                  | `False`      |
+| `--logtofile`         | flag   | Enable file logging                     | `True`       |
+| `--dry-run`           | flag   | Test without sending telegram messages  | `False`      |
 
 ---
 
