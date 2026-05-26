@@ -153,12 +153,12 @@ def main():
 
         if DRY_RUN:
             logger.info(str(item.date) + ": " + str(item.title))
+            continue
 
-        else:
-            seen.add(item.id)
+        seen.add(item.id)
 
-            message = format_card(item)
-            send_telegram_card(item, message, MESSAGE_THREAD_ID)
+        message = format_card(item)
+        send_telegram_card(item, message, MESSAGE_THREAD_ID)
 
     if not DRY_RUN:
         save_seen(seen)
