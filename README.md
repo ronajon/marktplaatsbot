@@ -192,7 +192,7 @@ marktplaatsbot.log
   * In Telegram app find Topic
   * Click on topic title
   * With hamburger menu, view topic info 
-  * message-thread-id is 'xyz; part of t.me/c/123456/**xyz**
+  * message-thread-id is **xyz** part of t.me/c/123456/**xyz**
 * Topics are optional
 * Without `--message-thread-id`, messages go to general chat
 
