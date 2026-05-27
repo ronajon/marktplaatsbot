@@ -149,12 +149,13 @@ python main.py
 ## 🧠 How it works
 
 1. Parse CLI arguments
-2. Load seen items (`marktplaatsbot_seen.json`)
+2. Load seen items, per topic a separate file (`marktplaatsbot_seen_topicXYZ.json`) 
 3. Search Marktplaats listings
 4. Filter duplicates
 5. Format Telegram card
 6. Send to Telegram
 7. Save seen IDs
+8. Purge seen file
 
 ---
 

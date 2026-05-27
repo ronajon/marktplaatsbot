@@ -57,9 +57,8 @@ parser.add_argument(
 
 args = parser.parse_args()
 
-KEYWORDS = [k.strip() for k in args.keywords.split(",") if k.strip()] # to search for multiple keywords, separate them with comma
-CATEGORIES = [c.strip() for c in args.categories.split(",") if c.strip()] #
-SEEN_FILE = "marktplaatsbot_seen.json"
+KEYWORDS = [k.strip() for k in args.keywords.split(",") if k.strip()]
+CATEGORIES = [c.strip() for c in args.categories.split(",") if c.strip()]
 LOG_FILE = "marktplaatsbot.log"
 MESSAGE_THREAD_ID = args.message_thread_id
 DRY_RUN = False
@@ -96,13 +95,22 @@ logging.basicConfig(
 # =========================
 # SEEN SYSTEM
 # =========================
-def load_seen():
-    if os.path.exists(SEEN_FILE):
-        return set(json.load(open(SEEN_FILE)))
+def seen_file_for_thread(thread_id):
+    if thread_id is None:
+        return "marktplaatsbot_seen.json"
+    return f"marktplaatsbot_seen_topic{thread_id}.json"
+
+def load_seen(thread_id):
+    seen_file = seen_file_for_thread(thread_id)
+    if os.path.exists(seen_file):
+        return set(json.load(open(seen_file)))
     return set()
 
-def save_seen(seen):
-    json.dump(list(seen), open(SEEN_FILE, "w"))
+def save_seen(seen, current_ids, thread_id):
+    seen_file = seen_file_for_thread(thread_id)
+    pruned = seen & current_ids  # drop IDs no longer in search results
+    json.dump(list(pruned), open(seen_file, "w"))
+
 
 # =========================
 # SEARCH
@@ -117,7 +125,7 @@ def search():
 
         for kw in KEYWORDS:
 
-            search = SearchQuery(
+            query = SearchQuery(
                 query=kw,
                 category=category,
                 zip_code=ZIP_CODE,
@@ -128,11 +136,10 @@ def search():
                 offered_since=datetime.now() - timedelta(days=OFFERED_SINCE_DAYS)
             )
 
-            results.extend(
-                search.get_listings()
-            )
+            results.extend(query.get_listings())
 
     return results
+
 
 # =========================
 # MAIN
@@ -142,9 +149,10 @@ def main():
     logger = setup_logging(args, LOG_FILE)
     logger.info("START: " + str(KEYWORDS))
 
-    seen = load_seen()
+    seen = load_seen(MESSAGE_THREAD_ID)
 
     items = search()
+    current_ids = {item.id for item in items}
 
     newitems = 0
     olditems = 0
@@ -153,12 +161,12 @@ def main():
 
         if item.id in seen:
             olditems += 1
-            continue # skip the rest of the for loop, next item
+            continue
 
         newitems += 1
 
         if DRY_RUN:
-            logger.info(str(item.date) + ": " + str(item.title))
+            logger.info(f"{item.date}: {item.title}")
             continue
 
         seen.add(item.id)
@@ -167,9 +175,9 @@ def main():
         send_telegram_card(item, message, MESSAGE_THREAD_ID)
 
     if not DRY_RUN:
-        save_seen(seen)
+        save_seen(seen, current_ids, MESSAGE_THREAD_ID)
 
-    logger.info("Found " + str(newitems) + " new items & " + str(olditems) + " existing items")
+    logger.info(f"Found {newitems} new items & {olditems} existing items")
     logger.info("DONE")
 
 if __name__ == "__main__":
