@@ -146,10 +146,16 @@ def main():
 
     items = search()
 
+    newitems = 0
+    olditems = 0
+
     for item in items:
 
         if item.id in seen:
+            olditems += 1
             continue # skip the rest of the for loop, next item
+
+        newitems += 1
 
         if DRY_RUN:
             logger.info(str(item.date) + ": " + str(item.title))
@@ -163,6 +169,7 @@ def main():
     if not DRY_RUN:
         save_seen(seen)
 
+    logger.info("Found " + str(newitems) + " new items & " + str(olditems) + " existing items")
     logger.info("DONE")
 
 if __name__ == "__main__":
